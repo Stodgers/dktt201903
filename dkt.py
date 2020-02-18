@@ -15,7 +15,7 @@ import tensorflow as tf
 
 # 配置config
 class TrainConfig(object):
-    epochs = 10
+    epochs = 100
     decay_rate = 0.92
     learning_rate = 0.01
     evaluate_every = 100
@@ -308,12 +308,16 @@ def gen_metrics(sequence_len, binary_pred, pred, target_correctness):
     new_target_correctness = np.concatenate(target_correctnesses)
     with tf.name_scope('auc'):
         auc = roc_auc_score(new_target_correctness, new_pred)
+
     with tf.name_scope('accuracy'):
         accuracy = accuracy_score(new_target_correctness, new_binary_pred)
+
     with tf.name_scope('precision'):
         precision = precision_score(new_target_correctness, new_binary_pred)
+
     with tf.name_scope('recall'):
         recall = recall_score(new_target_correctness, new_binary_pred)
+
 
     return auc, accuracy, precision, recall
 
@@ -358,11 +362,20 @@ class DKTEngine(object):
             feed_dict)
 
         auc, accuracy, precision, recall = gen_metrics(params['seq_len'], binary_pred, pred, target_correctness)
+        with tf.name_scope('auc'):
+            aucc =auc
+        with tf.name_scope('accuracy'):
+            accur = accuracy
+        with tf.name_scope('precision'):
+            prec = precision
+        with tf.name_scope('recall'):
+            reca = recall
 
         time_str = datetime.datetime.now().isoformat()
         print("train: {}: step {}, loss {}, acc {}, auc: {}, precision: {}, recall: {}".format(time_str, step, loss,
                                                                                                accuracy,
                                                                                                auc, precision, recall))
+        train_summary_writer.add_summary(summaries, step)
         train_summary_writer.add_summary(summaries, step)
 
     def dev_step(self, params, dev_summary_op, writer=None):
@@ -458,7 +471,11 @@ class DKTEngine(object):
 
             # 训练时的 Summaries
             train_loss_summary = tf.summary.scalar("loss", train_dkt.loss)
-            train_summary_op = tf.summary.merge([train_loss_summary, grad_summaries_merged])
+            # recall_summary = tf.summary.scalar('recall', train_dkt.recall)
+            # precision_summary = tf.summary.scalar('precision', train_dkt.precision)
+            # auc_summary = tf.summary.scalar('auc', train_dkt.auc)
+            # accuracy_summary = tf.summary.scalar('accuracy',train_dkt. accuracy)
+            train_summary_op = tf.summary.merge([train_loss_summary,grad_summaries_merged])
             train_summary_dir = os.path.join(out_dir, "summaries", "train")
             train_summary_writer = tf.summary.FileWriter(train_summary_dir, sess.graph)
 
