@@ -15,11 +15,11 @@ import tensorflow as tf
 
 # 配置config
 class TrainConfig(object):
-    epochs = 100
-    decay_rate = 0.92
+    epochs = 16
+    decay_rate = 0.90
     learning_rate = 0.01
-    evaluate_every = 100
-    checkpoint_every = 100
+    evaluate_every = 128
+    checkpoint_every = 128
     max_grad_norm = 3.0
 
 
@@ -29,7 +29,7 @@ class ModelConfig(object):
 
 
 class Config(object):
-    batch_size = 32
+    batch_size = 16
     num_skills = 124
     input_size = num_skills * 2
 
