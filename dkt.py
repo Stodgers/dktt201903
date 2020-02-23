@@ -17,7 +17,7 @@ import tensorflow as tf
 class TrainConfig(object):
     epochs = 16
     decay_rate = 0.90
-    learning_rate = 0.01
+    learning_rate = 0.001
     evaluate_every = 128
     checkpoint_every = 128
     max_grad_norm = 3.0
