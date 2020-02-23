@@ -18,8 +18,8 @@ class TrainConfig(object):
     epochs = 16
     decay_rate = 0.90
     learning_rate = 0.001
-    evaluate_every = 128
-    checkpoint_every = 128
+    evaluate_every = 100
+    checkpoint_every = 100
     max_grad_norm = 3.0
 
 
@@ -29,8 +29,8 @@ class ModelConfig(object):
 
 
 class Config(object):
-    batch_size = 16
-    num_skills = 124
+    batch_size = 32
+    num_skills = 123
     input_size = num_skills * 2
 
     trainConfig = TrainConfig()
