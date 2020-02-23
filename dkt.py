@@ -30,7 +30,7 @@ class ModelConfig(object):
 
 class Config(object):
     batch_size = 32
-    num_skills = 123
+    num_skills = 124
     input_size = num_skills * 2
 
     trainConfig = TrainConfig()
