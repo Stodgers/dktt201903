@@ -556,6 +556,7 @@ def load_model(fileName):
             saver = tf.train.import_meta_graph("model/my-model-200.meta")
             saver.restore(sess, tf.train.latest_checkpoint("model/"))
 
+
             # 获得默认的计算图结构
             graph = tf.get_default_graph()
 
