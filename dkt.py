@@ -15,7 +15,7 @@ import tensorflow as tf
 
 # 配置config
 class TrainConfig(object):
-    epochs = 15
+    epochs = 16
     decay_rate = 0.90
     learning_rate = 0.001
     evaluate_every = 100
