@@ -553,7 +553,7 @@ def load_model(fileName):
         for params in dataGen.next_batch(test_seqs):
             print("step: {}".format(step))
 
-            saver = tf.train.import_meta_graph("model/my-model-800.meta")
+            saver = tf.train.import_meta_graph("model/my-model-200.meta")
             saver.restore(sess, tf.train.latest_checkpoint("model/"))
 
             # 获得默认的计算图结构
