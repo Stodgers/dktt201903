@@ -11,10 +11,10 @@ import tensorflow as tf
 
 # 配置config
 class TrainConfig(object):
-    epochs = 20
+    epochs = 10
     decay_rate = 0.92
     learning_rate = 0.01
-    evaluate_every = 100
+    evaluate_every = 25
     checkpoint_every = 100
     max_grad_norm = 3.0
 
