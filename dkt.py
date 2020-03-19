@@ -11,7 +11,7 @@ import tensorflow as tf
 
 # 配置config
 class TrainConfig(object):
-    epochs = 10
+    epochs = 20
     decay_rate = 0.92
     learning_rate = 0.01
     evaluate_every = 100
@@ -511,7 +511,7 @@ def load_model(fileName):
         for params in dataGen.next_batch(test_seqs):
             print("step: {}".format(step))
 
-            saver = tf.train.import_meta_graph("model/my-model-800.meta")
+            saver = tf.train.import_meta_graph("model/my-model-2000.meta")
             saver.restore(sess, tf.train.latest_checkpoint("model/"))
 
             # 获得默认的计算图结构
