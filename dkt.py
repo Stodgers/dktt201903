@@ -1,5 +1,3 @@
-# %%
-from __future__ import print_function
 import random
 import time
 import sys
@@ -11,13 +9,11 @@ import numpy as np
 import tensorflow as tf
 
 
-# %%
-
 # 配置config
 class TrainConfig(object):
-    epochs = 16
-    decay_rate = 0.90
-    learning_rate = 0.001
+    epochs = 10
+    decay_rate = 0.92
+    learning_rate = 0.01
     evaluate_every = 100
     checkpoint_every = 100
     max_grad_norm = 3.0
@@ -41,9 +37,6 @@ class Config(object):
 config = Config()
 
 
-# %%
-
-# 生成数据
 class DataGenerator(object):
     # 导入的seqs是train_seqs，或者是test_seqs
     def __init__(self, fileName, config):
@@ -187,9 +180,6 @@ class DataGenerator(object):
 fileName = "./data/assistments.txt"
 dataGen = DataGenerator(fileName, config)
 dataGen.gen_attr()
-
-# %%
-
 train_seqs = dataGen.train_seqs
 params = next(dataGen.next_batch(train_seqs))
 print("skill num: {}".format(len(dataGen.skills_to_int)))
@@ -197,9 +187,6 @@ print("train_seqs length: {}".format(len(dataGen.train_seqs)))
 print("test_seqs length: {}".format(len(dataGen.test_seqs)))
 print("input_x shape: {}".format(params['input_x'].shape))
 print(params["input_x"][1][0])
-
-
-# %%
 
 # 构建模型
 class TensorFlowDKT(object):
@@ -276,10 +263,8 @@ class TensorFlowDKT(object):
             # flat_target_logits_sigmoid = tf.nn.log_softmax(flat_target_logits)
             # self.loss = -tf.reduce_mean(flat_target_correctness * flat_target_logits_sigmoid)
             self.loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(labels=flat_target_correctness,
-                                                                               logits=flat_target_logits))
+                                                                             logits=flat_target_logits))
 
-
-# %%
 
 # 训练模型
 def mean(item):
@@ -306,23 +291,13 @@ def gen_metrics(sequence_len, binary_pred, pred, target_correctness):
     new_binary_pred = np.concatenate(binary_preds)
     new_pred = np.concatenate(preds)
     new_target_correctness = np.concatenate(target_correctnesses)
-    with tf.name_scope('auc'):
-        auc = roc_auc_score(new_target_correctness, new_pred)
 
-    with tf.name_scope('accuracy'):
-        accuracy = accuracy_score(new_target_correctness, new_binary_pred)
-
-    with tf.name_scope('precision'):
-        precision = precision_score(new_target_correctness, new_binary_pred)
-
-    with tf.name_scope('recall'):
-        recall = recall_score(new_target_correctness, new_binary_pred)
-
+    auc = roc_auc_score(new_target_correctness, new_pred)
+    accuracy = accuracy_score(new_target_correctness, new_binary_pred)
+    precision = precision_score(new_target_correctness, new_binary_pred)
+    recall = recall_score(new_target_correctness, new_binary_pred)
 
     return auc, accuracy, precision, recall
-
-
-# %%
 
 class DKTEngine(object):
 
@@ -362,20 +337,10 @@ class DKTEngine(object):
             feed_dict)
 
         auc, accuracy, precision, recall = gen_metrics(params['seq_len'], binary_pred, pred, target_correctness)
-        with tf.name_scope('auc'):
-            aucc =auc
-        with tf.name_scope('accuracy'):
-            accur = accuracy
-        with tf.name_scope('precision'):
-            prec = precision
-        with tf.name_scope('recall'):
-            reca = recall
 
         time_str = datetime.datetime.now().isoformat()
-        print("train: {}: step {}, loss {}, acc {}, auc: {}, precision: {}, recall: {}".format(time_str, step, loss,
-                                                                                               accuracy,
+        print("train: {}: step {}, loss {}, acc {}, auc: {}, precision: {}, recall: {}".format(time_str, step, loss, accuracy,
                                                                                                auc, precision, recall))
-        train_summary_writer.add_summary(summaries, step)
         train_summary_writer.add_summary(summaries, step)
 
     def dev_step(self, params, dev_summary_op, writer=None):
@@ -471,11 +436,7 @@ class DKTEngine(object):
 
             # 训练时的 Summaries
             train_loss_summary = tf.summary.scalar("loss", train_dkt.loss)
-            # recall_summary = tf.summary.scalar('recall', train_dkt.recall)
-            # precision_summary = tf.summary.scalar('precision', train_dkt.precision)
-            # auc_summary = tf.summary.scalar('auc', train_dkt.auc)
-            # accuracy_summary = tf.summary.scalar('accuracy',train_dkt. accuracy)
-            train_summary_op = tf.summary.merge([train_loss_summary,grad_summaries_merged])
+            train_summary_op = tf.summary.merge([train_loss_summary, grad_summaries_merged])
             train_summary_dir = os.path.join(out_dir, "summaries", "train")
             train_summary_writer = tf.summary.FileWriter(train_summary_dir, sess.graph)
 
@@ -518,8 +479,7 @@ class DKTEngine(object):
 
                         time_str = datetime.datetime.now().isoformat()
                         print("dev: {}, step: {}, loss: {}, acc: {}, auc: {}, precision: {}, recall: {}".
-                              format(time_str, current_step, mean(losses), mean(accuracys), mean(aucs),
-                                     mean(precisions), mean(recalls)))
+                              format(time_str, current_step, mean(losses), mean(accuracys), mean(aucs), mean(precisions), mean(recalls)))
 
                     if current_step % config.trainConfig.checkpoint_every == 0:
                         path = saver.save(sess, "model/my-model", global_step=current_step)
@@ -530,9 +490,6 @@ if __name__ == "__main__":
     fileName = "./data/assistments.txt"
     dktEngine = DKTEngine()
     dktEngine.run_epoch(fileName)
-
-
-# %%
 
 # 模型预测
 def load_model(fileName):
@@ -546,6 +503,7 @@ def load_model(fileName):
     test_seqs = dataGen.test_seqs
 
     with tf.Session() as sess:
+
         accuracys = []
         aucs = []
         step = 1
@@ -553,9 +511,8 @@ def load_model(fileName):
         for params in dataGen.next_batch(test_seqs):
             print("step: {}".format(step))
 
-            saver = tf.train.import_meta_graph("model/my-model-200.meta")
+            saver = tf.train.import_meta_graph("model/my-model-800.meta")
             saver.restore(sess, tf.train.latest_checkpoint("model/"))
-
 
             # 获得默认的计算图结构
             graph = tf.get_default_graph()
